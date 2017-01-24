@@ -32,12 +32,10 @@ for i in range(len(test_percent)):
         x_train, x_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=test_percent[i], \
                                                             random_state=j)
         #Neural Nets
-        # clf = MLPClassifier(solver='lbfgs', alpha=1e-5, activation= 'logistic', \
-        #                     hidden_layer_sizes=(10,10), random_state=j)
-        #
-        # clf.fit(x_train, y_train)
+        clf = MLPClassifier(solver='lbfgs', alpha=1e-5, hidden_layer_sizes=(5, 2), random_state=1)
+        clf.fit(x_train, y_train)
         #SVM
-        # clf = svm.LinearSVC(C=1).fit(x_train, y_train)
+        # clf = svm.SVC(kernel='linear', C=1).fit(x_train, y_train)
         train_accuracy[i] += clf.score(x_train, y_train)
         test_accuracy[i] += clf.score(x_test, y_test)
 
