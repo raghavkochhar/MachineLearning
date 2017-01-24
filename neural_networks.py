@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
-from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn import datasets
 from sklearn import svm
 import matplotlib.pyplot as plt
@@ -28,20 +29,23 @@ def HR_data():
     num_pos = data['left'].sum(axis=0)
 
     data50 = pd.concat([data.iloc[:num_pos,:], data.iloc[-num_pos:,:]])
+    # data50.to_csv('/home/pepe/PycharmProjects/MLP1/MachineLearning/test.csv')
 
-    #Keep
+    #Keep All Attributes instead
     data50 = pd.read_csv("data/HR.csv")
 
     #Create X and Y datsets
     datay = data50['left']
     datax = data50.copy()
+
+
     del datax['left']
-    del datax['department']
+    # del datax['department']
 
     print datax.columns
 
     #One-Hot Encode categorical variables for scikit compantibility
-    datax = pd.get_dummies(datax, columns =['number_project','salary'], drop_first=True)
+    datax = pd.get_dummies(datax, columns =['number_project','salary', 'department'], drop_first=True)
 
 
     # # INCLUDE DEPARTMENTS
@@ -50,6 +54,9 @@ def HR_data():
 
     return datax, datay
 
+# print results_df
+# results_df.plot()
+# plt.show()
 
 
 
@@ -88,15 +95,26 @@ def learning_curve(datax, datay, num_iterations):
             #Neural Nets
             #alpha is L2 penalty,
             #
-            clf = MLPClassifier(solver='lbfgs', alpha=1e-5, activation= 'logistic', \
-                                hidden_layer_sizes=(100,), random_state=j, \
-                                early_stopping = True).fit(x_train, y_train)
+            # clf = MLPClassifier(solver='lbfgs', alpha=1e-5, activation= 'logistic', \
+            #                     hidden_layer_sizes=(100,), random_state=j, \
+            #                     early_stopping = True).fit(x_train, y_train)
 
             #SVM
 
             # clf = svm.SVC(C=1, kernel ='rbf', random_state=j).fit(x_train, y_train)
+
+
+            # K-Nearest Neighbor
+
+            clf = KNeighborsClassifier(algorithm='auto', leaf_size=30, metric='minkowski', metric_params=None, \
+                                       n_jobs=1, n_neighbors=15, p=2, weights='uniform')
+            clf.fit(x_train,y_train)
+
+
+            #Record Accuracies by summing through array
             train_accuracy[i] += clf.score(x_train, y_train)
             test_accuracy[i] += clf.score(x_test, y_test)
+
 
     train_accuracy = train_accuracy/num_iterations
     test_accuracy = test_accuracy/num_iterations
@@ -107,15 +125,15 @@ def learning_curve(datax, datay, num_iterations):
 
 # Run HR Analytics
 
-datax, datay = wine_data()
+# datax, datay = wine_data()
 
-# datax, datay = HR_data()
+datax, datay = HR_data()
 results_df = learning_curve(datax, datay, num_iterations = 10)
 
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-
+#
 print results_df
 results_df.plot()
 plt.show()
