@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import pydotplus
+from sklearn import tree
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -9,12 +11,12 @@ import matplotlib.pyplot as plt
 import copy
 import matplotlib
 import time
+from IPython.display import Image
 
 matplotlib.style.use('ggplot')
 
 #Start Timer
 start_time = time.time()
-
 
 
 def HR_data():
@@ -106,15 +108,29 @@ def learning_curve(datax, datay, num_iterations):
 
             # K-Nearest Neighbor
 
-            clf = KNeighborsClassifier(algorithm='auto', leaf_size=30, metric='minkowski', metric_params=None, \
-                                       n_jobs=1, n_neighbors=15, p=2, weights='uniform')
-            clf.fit(x_train,y_train)
+            # clf = KNeighborsClassifier(algorithm='auto', leaf_size=30, metric='minkowski', metric_params=None, \
+            #                            n_jobs=1, n_neighbors=15, p=2, weights='uniform')
+            # clf.fit(x_train,y_train)
+
+
+
+            # Decision Tree
+
+            clf = tree.DecisionTreeClassifier().fit(x_train,y_train)
 
 
             #Record Accuracies by summing through array
             train_accuracy[i] += clf.score(x_train, y_train)
             test_accuracy[i] += clf.score(x_test, y_test)
 
+    dot_data = tree.export_graphviz(clf, out_file=None,
+                                         feature_names=iris.feature_names,
+                                         class_names=iris.target_names,
+                                         filled=True, rounded=True,
+                                         special_characters=True)
+
+    graph = pydotplus.graph_from_dot_data(dot_data)
+    Image(graph.create_png())
 
     train_accuracy = train_accuracy/num_iterations
     test_accuracy = test_accuracy/num_iterations
